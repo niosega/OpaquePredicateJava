@@ -3,8 +3,27 @@
  */
 package OpaquePredicateJava;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Opcodes;
+
 public class App {
     public static void main(String[] args) {
-        System.out.println("Bonjour");
+        try {
+            final ClassReader classReader = new ClassReader(new FileInputStream(args[0]));
+            final ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+            classReader.accept(new OpaquePredicateVisitor(Opcodes.ASM9, classWriter), 0);
+            final FileOutputStream os = new FileOutputStream(new File("Test.class"));
+            os.write(classWriter.toByteArray());
+            os.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
