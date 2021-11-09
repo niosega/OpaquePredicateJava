@@ -30,18 +30,26 @@ public class OpaquePredicateVisitor extends ClassVisitor {
                     if (opcode == Opcodes.ICONST_1) {
                         final Label labelFalse = new Label();
                         final Label labelEnd = new Label();
-                        mv.visitInsn(Opcodes.ICONST_0);
-                        mv.visitInsn(Opcodes.ICONST_0);
-                        mv.visitJumpInsn(Opcodes.IF_ICMPNE, labelFalse);
+                        this.generateBranching(mv, labelFalse);
                         mv.visitInsn(opcode);
                         mv.visitJumpInsn(Opcodes.GOTO, labelEnd);
                         mv.visitLabel(labelFalse);                        
-                        mv.visitInsn(Opcodes.ICONST_3);
+                        this.generateGarbage(mv);
                         mv.visitLabel(labelEnd);
                         return;
                     }
 
                     super.visitInsn(opcode);
+                }
+
+                private void generateGarbage(final MethodVisitor mv) {
+                    mv.visitInsn(Opcodes.ICONST_3);
+                }
+
+                private void generateBranching(final MethodVisitor mv, final Label labelFalse) {
+                    mv.visitInsn(Opcodes.ICONST_0);
+                    mv.visitInsn(Opcodes.ICONST_0);
+                    mv.visitJumpInsn(Opcodes.IF_ICMPNE, labelFalse);
                 }
             };
         } else
