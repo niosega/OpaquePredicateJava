@@ -12,13 +12,14 @@ public class OpaquePredicateVisitor extends ClassVisitor {
 
     private final List<String> functionsNames;
 
-    public OpaquePredicateVisitor(ClassVisitor classVisitor, final List<String> functionsNames) {
+    public OpaquePredicateVisitor(final ClassVisitor classVisitor, final List<String> functionsNames) {
         super(API, classVisitor);
         this.functionsNames = functionsNames;
     }
 
     @Override
-    public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
+    public MethodVisitor visitMethod(final int access, final String name, final String descriptor,
+                                     final String signature, final String[] exceptions) {
         if (this.functionsNames.isEmpty() || this.functionsNames.contains(name)) {
             MethodVisitor methodVisitor = cv.visitMethod(access, name, descriptor, signature, exceptions);
 
