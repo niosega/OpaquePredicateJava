@@ -1,14 +1,8 @@
 package OpaquePredicateJava;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
-
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassWriter;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -33,14 +27,8 @@ public class App implements Callable<Integer> {
 	@Override
 	public Integer call() throws Exception {
 		try {
-			final ClassReader classReader = new ClassReader(new FileInputStream(inputFilename));
-			final ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
-			final OpaquePredicateVisitor opv = new OpaquePredicateVisitor(classWriter, functionsNames);
-			classReader.accept(opv, 0);
-			final FileOutputStream os = new FileOutputStream(new File(outputFilename));
-			os.write(classWriter.toByteArray());
-			os.close();
-
+			final OpaquePredicateObfuscator opo = new OpaquePredicateObfuscator(inputFilename, outputFilename, functionsNames);
+			opo.obfuscate();
 			return 0;
 		} catch (Exception e) {
 			e.printStackTrace();
