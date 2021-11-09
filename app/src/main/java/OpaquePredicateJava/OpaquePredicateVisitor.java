@@ -1,24 +1,28 @@
 package OpaquePredicateJava;
 
+import java.util.List;
+
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 public class OpaquePredicateVisitor extends ClassVisitor {
+    private static final int API = Opcodes.ASM9;
 
-    private static final String TRANSFORM_METHOD_NAME = "fact2";
+    private final List<String> functionsNames;
 
-    public OpaquePredicateVisitor(int api, ClassVisitor classVisitor) {
-        super(api, classVisitor);
+    public OpaquePredicateVisitor(ClassVisitor classVisitor, final List<String> functionsNames) {
+        super(API, classVisitor);
+        this.functionsNames = functionsNames;
     }
 
     @Override
     public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
-        if (name.equals(TRANSFORM_METHOD_NAME)) {
+        if (this.functionsNames.isEmpty() || this.functionsNames.contains(name)) {
             MethodVisitor methodVisitor = cv.visitMethod(access, name, descriptor, signature, exceptions);
 
-            return new MethodVisitor(Opcodes.ASM7, methodVisitor) {
+            return new MethodVisitor(API, methodVisitor) {
 
                 @Override
                 public void visitInsn(int opcode) {
