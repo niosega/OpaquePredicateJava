@@ -43,10 +43,12 @@ public class OpaquePredicateVisitor extends ClassVisitor {
                 }
 
                 private void generateGarbage(final MethodVisitor mv) {
+                    // TODO: For now, we just push 3 on the stack.
                     mv.visitInsn(Opcodes.ICONST_3);
                 }
 
                 private void generateBranching(final MethodVisitor mv, final Label labelFalse) {
+                    // TODO: For now, we assume that the original code is in the if block.
                     mv.visitInsn(Opcodes.ICONST_0);
                     mv.visitInsn(Opcodes.ICONST_0);
                     mv.visitJumpInsn(Opcodes.IF_ICMPNE, labelFalse);
