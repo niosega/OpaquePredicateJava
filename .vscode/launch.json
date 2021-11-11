@@ -10,7 +10,7 @@
             "request": "launch",
             "mainClass": "OpaquePredicateJava.App",
             "projectName": "app",
-            "args": "app/src/test/resources/src/Test1.class Test.class"
+            "args": "app/src/test/resources/src/Test1.class Test.class --only fact2"
         }
     ]
 }
