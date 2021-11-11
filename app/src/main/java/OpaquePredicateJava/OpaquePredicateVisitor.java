@@ -26,8 +26,12 @@ public class OpaquePredicateVisitor extends ClassVisitor {
 			return new MethodVisitor(API, methodVisitor) {
 
 				@Override
-				public void visitInsn(int opcode) {
-					if (opcode == Opcodes.ICONST_1) {
+				public void visitInsn(final int opcode) {
+					this.generateOpaquePredicate(opcode);
+				}
+
+				private void generateOpaquePredicate(final int opcode) {
+					if (!isReturnInsn(opcode)) {
 						final Label labelFalse = new Label();
 						final Label labelEnd = new Label();
 						this.generateBranching(mv, labelFalse);
@@ -56,6 +60,20 @@ public class OpaquePredicateVisitor extends ClassVisitor {
 			};
 		} else
 			return super.visitMethod(access, name, descriptor, signature, exceptions);
+	}
+
+	private boolean isReturnInsn(final int opcode) {
+		switch (opcode) {
+			case Opcodes.IRETURN:
+			case Opcodes.LRETURN:
+			case Opcodes.FRETURN:
+			case Opcodes.DRETURN:
+			case Opcodes.ARETURN:
+			case Opcodes.RETURN:
+				return true;
+			default:
+				return false;
+		}
 	}
 
 }
