@@ -3,11 +3,10 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Arrays;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
@@ -38,7 +37,7 @@ public class Test {
 	}
 
 	@org.junit.Test
-	public void test12() {
+	public void test1() {
 		obfuscate("Test1");
 		try {
 			final Class<?> type = loadClass().loadClass("Test1");
@@ -58,9 +57,9 @@ public class Test {
 	public void obfuscate(final String name) {
 		try {
 			Runtime.getRuntime().exec("javac src/test/resources/src/" + name + ".java").waitFor();
-			final OpaquePredicateObfuscator opo = new OpaquePredicateObfuscator(
-																									"src/test/resources/src/" + name + ".class",
-																									"src/test/resources/out/" + name + ".class");
+			final OpaquePredicateObfuscator opo = new OpaquePredicateObfuscator("src/test/resources/src/" + name + ".class",
+																				"src/test/resources/out/" + name + ".class",
+																				Arrays.asList("fact2"));
 			opo.obfuscate();
 		} catch (Exception e) {
 			assertTrue("Failed to obfuscate " + name, false);
