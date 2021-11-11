@@ -24,6 +24,15 @@ public class OpaquePredicateVisitor extends ClassVisitor {
 			MethodVisitor methodVisitor = cv.visitMethod(access, name, descriptor, signature, exceptions);
 
 			return new MethodVisitor(API, methodVisitor) {
+				@Override
+				public void visitJumpInsn(final int opcode, final Label label) {
+					// TODO: obfuscate jump insn.
+				}
+
+				@Override
+				public void visitVarInsn(final int opcode, final int var) {
+					// TODO: obfuscate var insn.
+				}
 
 				@Override
 				public void visitInsn(final int opcode) {
