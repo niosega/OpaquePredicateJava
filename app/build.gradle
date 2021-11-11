@@ -16,6 +16,11 @@ repositories {
     jcenter()
 }
 
+sourceSets.test.resources {
+    srcDirs = ["src/test/java"]
+    exclude "src/test/resources/src/*java"
+}
+
 dependencies {
     implementation 'org.ow2.asm:asm:9.2'
     implementation 'org.ow2.asm:asm-util:9.2'
