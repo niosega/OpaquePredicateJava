@@ -38,4 +38,7 @@ If the predicate is well choosen but the garbage generation to obvious, the reve
 
 Collberg, Thomborson and Low have written that the more a code has branching, the more it looks "real". It may also be a good idea to include standard library calls to look more "real". This part is in fact way more difficult than chossing a good opaque predicate, because it relies on human perception of code, and two differents persons may have two different perceptions.
 
+# Tests
+For now, I only test the obfuscation with basic Java programs that I write myself. A better solution would be to choose a open source project of a correct size and compare the result of the original program and of the obfuscated program.
+
 [1] https://www.researchgate.net/publication/37987523_A_Taxonomy_of_Obfuscating_Transformations
