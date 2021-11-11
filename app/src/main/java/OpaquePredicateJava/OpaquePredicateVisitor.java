@@ -40,6 +40,22 @@ public class OpaquePredicateVisitor extends ClassVisitor {
 				}
 
 				private void generateOpaquePredicate(final int opcode) {
+					// Our goal is to generate a code of this form :
+					//
+					// if (predicate) {
+					// 	original code
+					// } else {
+					// 	garbage
+					// }
+					//
+					// which can be written in pseudo-code as:
+					//
+					// if false goto labelFalse
+					//	    originalCode
+					//      goto LabelEnd
+					// labelFalse:
+					//      garbage
+					// labelEnd:
 					if (!isReturnInsn(opcode)) {
 						final Label labelFalse = new Label();
 						final Label labelEnd = new Label();
