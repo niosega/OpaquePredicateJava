@@ -54,6 +54,24 @@ public class Test {
 		}
 	}
 
+	@org.junit.Test
+	public void test2() {
+		obfuscate("Test2");
+		try {
+			final Class<?> type = loadClass().loadClass("Test2");
+			final Object instance = type.getConstructor().newInstance();
+			final Class[] cArg = new Class[1];
+         	cArg[0] = String.class;
+
+			String res = (String) type.getMethod("majeur", cArg).invoke(instance, 4);
+			String res2 = (String) type.getMethod("majeur2", cArg).invoke(instance, 4);
+
+			assertEquals(res, res2);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	public void obfuscate(final String name) {
 		try {
 			Runtime.getRuntime().exec("javac src/test/resources/src/" + name + ".java").waitFor();
