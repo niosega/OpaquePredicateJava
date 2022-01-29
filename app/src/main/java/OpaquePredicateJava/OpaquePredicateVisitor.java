@@ -83,8 +83,9 @@ public class OpaquePredicateVisitor extends ClassVisitor {
 					mv.visitJumpInsn(Opcodes.IF_ICMPNE, labelFalse);
 				}
 			};
-		} else
+		} else {
 			return super.visitMethod(access, name, descriptor, signature, exceptions);
+		}
 	}
 
 	private boolean isReturnInsn(final int opcode) {
