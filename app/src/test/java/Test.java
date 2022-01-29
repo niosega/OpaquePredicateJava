@@ -5,42 +5,68 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.stream.Stream;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 
 import OpaquePredicateJava.OpaquePredicateObfuscator;
 
 public class Test {
-	@BeforeClass
-	public static void setUp() {
-		try {
-			// TODO: don't be linux specific.
-			Runtime.getRuntime().exec("rm -rf src/test/resources/src/*.class src/test/resources/out");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 
-		final File f = new File("src/test/resources/out");
-		f.mkdirs();
-	}
-
-	@AfterClass
-	public static void cleanUp() {
+	public static void runCmd(final String cmd) {
 		try {
-			// TODO: don't be linux specific.
-			Runtime.getRuntime().exec("rm -rf src/test/resources/src/*.class src/test/resources/out").waitFor();
+			Runtime.getRuntime().exec(cmd).waitFor();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	@org.junit.Test
-	public void test1() {
-		obfuscate("Test1");
+	public static void cleanTmpFiles() {
+		Stream.of(new File("src/test/resources/src/")
+			.listFiles())
+			.filter(file -> !file.isDirectory() && file.getName().endsWith(".class"))
+			.forEach(file -> file.delete());
+
 		try {
-			final Class<?> type = loadClass().loadClass("Test1");
+			FileUtils.deleteDirectory(new File("src/test/resources/out"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@BeforeClass
+	public static void setUp() {
+		// Clean and create temporary folder.
+		cleanTmpFiles();
+		final File f = new File("src/test/resources/out");
+		f.mkdirs();
+
+		// Compile all java files in src/test/resources/src
+		Stream.of(new File("src/test/resources/src/")
+				.listFiles())
+				.filter(file -> !file.isDirectory())
+				.forEach(file -> {
+					runCmd("javac " + file);
+				});
+	}
+
+	@AfterClass
+	public static void cleanUp() {
+		cleanTmpFiles();
+	}
+
+	@org.junit.Test
+	@Ignore
+	public void testRecursive() {
+		obfuscate("TestRecursive", "fact");
+		try {
+			final Class<?> type = loadClass().loadClass("TestRecursive");
 			final Object instance = type.getConstructor().newInstance();
 			final Class[] cArg = new Class[1];
          	cArg[0] = int.class;
@@ -55,13 +81,13 @@ public class Test {
 	}
 
 	@org.junit.Test
-	public void test2() {
-		obfuscate("Test2");
+	public void TestSimpleCondition() {
+		obfuscate("TestSimpleCondition", "majeur");
 		try {
-			final Class<?> type = loadClass().loadClass("Test2");
+			final Class<?> type = loadClass().loadClass("TestSimpleCondition");
 			final Object instance = type.getConstructor().newInstance();
 			final Class[] cArg = new Class[1];
-         	cArg[0] = String.class;
+         	cArg[0] = int.class;
 
 			String res = (String) type.getMethod("majeur", cArg).invoke(instance, 4);
 			String res2 = (String) type.getMethod("majeur2", cArg).invoke(instance, 4);
@@ -72,12 +98,12 @@ public class Test {
 		}
 	}
 
-	public void obfuscate(final String name) {
+	public void obfuscate(final String name, final String functionName) {
 		try {
 			Runtime.getRuntime().exec("javac src/test/resources/src/" + name + ".java").waitFor();
 			final OpaquePredicateObfuscator opo = new OpaquePredicateObfuscator("src/test/resources/src/" + name + ".class",
 																				"src/test/resources/out/" + name + ".class",
-																				Arrays.asList("fact2"));
+																				Arrays.asList(functionName));
 			opo.obfuscate();
 		} catch (Exception e) {
 			assertTrue("Failed to obfuscate " + name, false);

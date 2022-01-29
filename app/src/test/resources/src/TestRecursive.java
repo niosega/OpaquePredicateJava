@@ -1,4 +1,4 @@
-public class Test1 {
+public class TestRecursive {
   public static int fact(int n) {
     if(n == 0)
       return 1;
@@ -9,7 +9,7 @@ public class Test1 {
   public static int fact2(int n) {
     if(n == 0)
       return 1;
-    int res = n * fact(n-1);
+    int res = n * fact2(n-1);
     return res;
   }
 

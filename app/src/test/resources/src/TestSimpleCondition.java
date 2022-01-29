@@ -1,4 +1,4 @@
-public class Test2 {
+public class TestSimpleCondition {
   public static String majeur(int n) {
     if (n < 18) {
       return "mineur";
