@@ -98,6 +98,23 @@ public class Test {
 		}
 	}
 
+	@org.junit.Test
+	public void TestSumLoop() {
+		obfuscate("TestSumLoop", "compute");
+		try {
+			final Class<?> type = loadClass().loadClass("TestSumLoop");
+			final Object instance = type.getConstructor().newInstance();
+			final Class[] cArg = new Class[0];
+
+			int res = (int) type.getMethod("compute", cArg).invoke(instance);
+			int res2 = (int) type.getMethod("compute2", cArg).invoke(instance);
+
+			assertEquals(res, res2);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	public void obfuscate(final String name, final String functionName) {
 		try {
 			Runtime.getRuntime().exec("javac src/test/resources/src/" + name + ".java").waitFor();
@@ -106,6 +123,7 @@ public class Test {
 																				Arrays.asList(functionName));
 			opo.obfuscate();
 		} catch (Exception e) {
+			e.printStackTrace();
 			assertTrue("Failed to obfuscate " + name, false);
 		}
 	}

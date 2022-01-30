@@ -24,15 +24,10 @@ public class OpaquePredicateVisitor extends ClassVisitor {
 			MethodVisitor methodVisitor = cv.visitMethod(access, name, descriptor, signature, exceptions);
 
 			return new MethodVisitor(API, methodVisitor) {
-				// @Override
-				// public void visitJumpInsn(final int opcode, final Label label) {
-				// 	// TODO: obfuscate jump insn.
-				// }
-
-				// @Override
-				// public void visitVarInsn(final int opcode, final int var) {
-				// 	// TODO: obfuscate var insn.
-				// }
+				@Override
+				public void visitMaxs(int maxStack, int maxLocals) {
+					mv.visitMaxs(0, 0);
+				}
 
 				@Override
 				public void visitInsn(final int opcode) {
@@ -63,7 +58,7 @@ public class OpaquePredicateVisitor extends ClassVisitor {
 						mv.visitInsn(opcode);
 						mv.visitJumpInsn(Opcodes.GOTO, labelEnd);
 						mv.visitLabel(labelFalse);
-						this.generateGarbage(mv);
+						this.generateGarbage(opcode, mv);
 						mv.visitLabel(labelEnd);
 						return;
 					}
@@ -71,9 +66,34 @@ public class OpaquePredicateVisitor extends ClassVisitor {
 					super.visitInsn(opcode);
 				}
 
-				private void generateGarbage(final MethodVisitor mv) {
-					// TODO: For now, we just push 3 on the stack.
-					mv.visitInsn(Opcodes.ICONST_3);
+				private void generateGarbage(final int opcode, final MethodVisitor mv) {
+					// TODO: For now, we just push / pop the same number of stuff on the stack as the opcode does.
+					int stackChanges = ObfuscatorUtils.stackSizeAfterOpcode(opcode);
+
+					if (stackChanges == 0) {
+						mv.visitInsn(Opcodes.NOP);
+						return;
+					}
+
+					// This opcode are randomly select between all possible opcodes
+					// that add/remove 1 element to/from the stack.
+					final int garbageOpcode;
+					if (stackChanges < 0) {
+						garbageOpcode = Opcodes.POP;
+
+						for (int i = 0; i < Math.abs(stackChanges); i++) {
+							mv.visitInsn(Opcodes.POP);
+							mv.visitInsn(Opcodes.POP);
+							mv.visitInsn(Opcodes.ICONST_0);
+						}
+						return;
+					} else {
+						garbageOpcode = Opcodes.ICONST_4;
+					}
+
+					for (int i = 0; i < Math.abs(stackChanges); i++) {
+						mv.visitInsn(garbageOpcode);
+					}
 				}
 
 				private void generateBranching(final MethodVisitor mv, final Label labelFalse) {
