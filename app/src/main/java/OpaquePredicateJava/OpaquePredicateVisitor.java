@@ -96,6 +96,7 @@ public class OpaquePredicateVisitor extends ClassVisitor {
 			case Opcodes.DRETURN:
 			case Opcodes.ARETURN:
 			case Opcodes.RETURN:
+			case Opcodes.ATHROW:
 				return true;
 			default:
 				return false;
