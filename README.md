@@ -38,7 +38,7 @@ For the sake of simplicity, I decided to implement the very basic `a * a < 0` pr
 In real life application, I would have chosen a strong opaque predicate, but it would have been require a lot more time (in term of thinking and implementation).
 
 # Garbage generation
-If the predicate is well choosen but the garbage generation to obvious, the reverse engineer may spot something strange and find quickly that the branching is useless. In my implementation, for now I only generate a `iconst_3` instruction in the always-false branch. But this is obviously bad.
+If the predicate is well choosen but the garbage generation to obvious, the reverse engineer may spot something strange and find quickly that the branching is useless.
 
 Collberg, Thomborson and Low have written that the more a code has branching, the more it looks "real". It may also be a good idea to include standard library calls to look more "real". This part is in fact way more difficult than chossing a good opaque predicate, because it relies on human perception of code, and two differents persons may have two different perceptions.
 
