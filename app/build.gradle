@@ -17,8 +17,15 @@ repositories {
 }
 
 sourceSets.test.resources {
-    srcDirs = ["src/test/java"]
-    exclude "src/test/resources/src/*java"
+    srcDirs = ["app/src/test/java"]
+    exclude "app/src/test/resources/src/*java"
+}
+
+test {
+    jvmArgs '-noverify'
+	testLogging {
+		events "PASSED", "SKIPPED", "FAILED"
+	}
 }
 
 dependencies {
