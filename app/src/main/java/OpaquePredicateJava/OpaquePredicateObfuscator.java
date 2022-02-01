@@ -37,7 +37,7 @@ public class OpaquePredicateObfuscator {
         // Read the input class file.
         final ClassNode cn = new ClassNode(Opcodes.ASM9);
         final ClassReader classReader = new ClassReader(new FileInputStream(this.inputFilename));
-        classReader.accept(cn, 0);
+        classReader.accept(cn, ClassReader.SKIP_FRAMES);
 
         // Do the tranformation.
         final OpaquePredicateTransformer opt = new OpaquePredicateTransformer(cn, functionsNames);

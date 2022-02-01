@@ -1,6 +1,8 @@
 package OpaquePredicateJava;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
@@ -9,6 +11,7 @@ import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
+import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.MethodNode;
 
 public class OpaquePredicateTransformer extends ClassNode {
@@ -25,15 +28,31 @@ public class OpaquePredicateTransformer extends ClassNode {
 
 	public void transform() {
 		for (final MethodNode mn : cn.methods) {
+			// Filter methods if user asks us to obfuscate only specific methods.
 			if (!this.functionsNames.contains(mn.name)) {
 				continue;
 			}
 
+			// Choose predicate variable.
+			final LocalVariableNode predicateVar = this.choosePredicateVariable(mn);
+			if (predicateVar == null) {
+				System.out.println(
+					String.format(
+						"No suitable predicate variable found, method %s can not be obfuscated. Method ignored.",
+						mn.name
+					)
+				);
+
+				continue;
+			}
+
+			// If there are no instructions, there is nothing to do.
 			final InsnList instructions = mn.instructions;
 			if (instructions.size() == 0) {
 				continue;
 			}
 
+			// Iterate over method instructions and obfuscate suitable one.
 			final InsnList newInstructions = new InsnList();
 			instructions.forEach(inst -> {
 				final int opcode = inst.getOpcode();
@@ -60,7 +79,31 @@ public class OpaquePredicateTransformer extends ClassNode {
 
 				newInstructions.add(list);
 			});
+
+			// Replace the current instruction by the obfuscated ones.
+			mn.instructions = newInstructions;
 		}
+	}
+
+	private LocalVariableNode choosePredicateVariable(final MethodNode mn) {
+		if (mn.localVariables != null) {
+			final List<LocalVariableNode> possibleLocals = new ArrayList<LocalVariableNode>();
+			for (final LocalVariableNode lv : mn.localVariables) {
+				// TODO: For now, we only supported int variable in predicate.
+				// but it is possible to use variable of any kind, we just have
+				// to adjust how predicate computation is performed.
+				if (lv.desc.equals("I")) {
+					possibleLocals.add(lv);
+				}
+			}
+
+			if (!possibleLocals.isEmpty()) {
+				return possibleLocals.get(new Random().nextInt(possibleLocals.size()));
+			}
+		}
+
+		// TODO: improve predicate variable choice, by adding class field or system lib call.
+		return null;
 	}
 
 	private void generatePredicate(final InsnList list) {
