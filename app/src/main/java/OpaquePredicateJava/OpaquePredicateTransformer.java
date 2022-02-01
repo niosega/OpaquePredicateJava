@@ -13,6 +13,7 @@ import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.VarInsnNode;
 
 public class OpaquePredicateTransformer extends ClassNode {
 	private static final int API = Opcodes.ASM9;
@@ -68,8 +69,7 @@ public class OpaquePredicateTransformer extends ClassNode {
 				final LabelNode labelNodeFalse = new LabelNode(labelFalse);
 				final Label labelEnd = new Label();
 				final LabelNode labelNodeEnd = new LabelNode(labelEnd);
-				this.generatePredicate(list);
-				list.add(new JumpInsnNode(Opcodes.IF_ICMPNE, labelNodeFalse));
+				this.generatePredicate(predicateVar, labelNodeFalse, list);
 				list.add(inst);
 				list.add(new JumpInsnNode(Opcodes.GOTO, labelNodeEnd));
 				list.add(labelNodeFalse);
@@ -106,10 +106,12 @@ public class OpaquePredicateTransformer extends ClassNode {
 		return null;
 	}
 
-	private void generatePredicate(final InsnList list) {
-		// TODO: For now, we generate the basic 0 == 0 predicate.
-		list.add(new InsnNode(Opcodes.ICONST_0));
-		list.add(new InsnNode(Opcodes.ICONST_0));
+	private void generatePredicate(final LocalVariableNode predicateVar, final LabelNode labelFalse, final InsnList list) {
+		// TODO: For now, we generate the basic x*x >= 0 predicate.
+		list.add(new VarInsnNode(Opcodes.ILOAD, predicateVar.index));
+		list.add(new VarInsnNode(Opcodes.ILOAD, predicateVar.index));
+		list.add(new InsnNode(Opcodes.IMUL));
+		list.add(new JumpInsnNode(Opcodes.IFLT, labelFalse));
 	}
 
 	private void generateGarbage(final int opcode, final InsnList list) {
