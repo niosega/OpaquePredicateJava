@@ -111,6 +111,24 @@ public class Test {
 		}
 	}
 
+	@org.junit.Test
+	public void TestMonteCarlo() {
+		obfuscate("TestMonteCarlo", "monte");
+		try {
+			final Class<?> type = loadClass().loadClass("TestMonteCarlo");
+			final Object instance = type.getConstructor().newInstance();
+			final Class[] cArg = new Class[0];
+
+			double res = (double) type.getMethod("monte", cArg).invoke(instance);
+			double res2 = (double) type.getMethod("monte2", cArg).invoke(instance);
+
+			// MonteCarlo is an approximation based on randomness.
+			assertTrue(Math.abs(res - res2) < 0.01);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	public void obfuscate(final String name, final String functionName) {
 		try {
 			Runtime.getRuntime().exec("javac src/test/resources/src/" + name + ".java").waitFor();
