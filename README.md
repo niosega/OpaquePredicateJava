@@ -30,15 +30,75 @@ int a = veryComplexFunctionWithUselessParams("fish", 10, new FunObject(), 1);
 if (a * a > 0) {...}
 ```
 
-# Java bytecode limitation
-<!-- TODO: expliquer pourquoi j'ai pas obfusqué les return et pourquoi j'ai utilisé que avec ces 3 visiteurs -->
+For the sake of simplicity, I decided to implement the very basic `a * a < 0` predicate, `a` being chosen in the local variable of the method. If no suitable local variable are found, the obfuscator bails out for this method. It is of course a very bad opaque predicate. Such very simple predicate can easily be removed using either:
+
+- the brain of the reverser.
+- a constraint solver, like z3 and very basic CFG analysis.
+
+In real life application, I would have chosen a strong opaque predicate, but it would have been require a lot more time (in term of thinking and implementation).
 
 # Garbage generation
 If the predicate is well choosen but the garbage generation to obvious, the reverse engineer may spot something strange and find quickly that the branching is useless. In my implementation, for now I only generate a `iconst_3` instruction in the always-false branch. But this is obviously bad.
 
 Collberg, Thomborson and Low have written that the more a code has branching, the more it looks "real". It may also be a good idea to include standard library calls to look more "real". This part is in fact way more difficult than chossing a good opaque predicate, because it relies on human perception of code, and two differents persons may have two different perceptions.
 
+# Implementation considerations
+
+## Java version
+This implementation has been tested with openjdk-11.
+
+## How to run it ?
+At the root of the project, launch :
+```
+./gradlew clean build test
+```
+
+It should print :
+
+```
+nico@machine: ~/OpaquePredicateJava (main) $ ./gradlew clean build test
+Starting a Gradle Daemon, 2 incompatible Daemons could not be reused, use --status for details
+
+> Task :app:test
+
+Test > TestSimpleCondition PASSED
+
+Test > TestSumLoop PASSED
+
+Test > TestMonteCarlo SKIPPED
+
+Test > testRecursive PASSED
+
+BUILD SUCCESSFUL in 6s
+8 actionable tasks: 8 executed
+```
+
+## Source debug informations
+To be able to use local variable information, the original source code must be compiled with the `javac -g` option.
+
+## Garbage generation
+The obfuscator generates garbage code for the never-true branch. For now, it only generate instruction that pop/push the same amount of thing on the stack as the opcode being surronded with branches. As mentionned before, the garbage generation is very difficult because it relies on human perception of "garbage".
+
+## Launch option
+The generated garbage does not take into account the code that comes after the branching. So it can create inconsistency that make the verifier fails. For example, my garbage may push int on the stack, but if the next instruction expects a double, the verifier fails. Here is an example :
+
+```
+if x*x >= 0
+    dconst_0
+else
+   //garbage: Details at OpaquePredicateTransformer.java:generateGarbage
+   iconst_5 
+
+dmul
+```
+
+`dmul` expects a `double` on the stack, but the `else` branch, even if we will never execute it, push an `int`. So the verifier fails.
+
+So for the sake of simplicity, I disable the verifier (with `java -noverify` or `gradle` options) when I launch the obfuscated class.
+
 # Tests
 For now, I only test the obfuscation with basic Java programs that I write myself. A better solution would be to choose a open source project of a correct size and compare the result of the original program and of the obfuscated program.
+
+The MonteCarlo test is for now ignored because it crashes the JVM. There is still work to be done :)
 
 [1] https://www.researchgate.net/publication/37987523_A_Taxonomy_of_Obfuscating_Transformations
