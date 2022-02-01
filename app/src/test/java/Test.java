@@ -11,6 +11,7 @@ import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 
 import OpaquePredicateJava.OpaquePredicateObfuscator;
 
@@ -112,6 +113,7 @@ public class Test {
 	}
 
 	@org.junit.Test
+	@Ignore
 	public void TestMonteCarlo() {
 		obfuscate("TestMonteCarlo", "monte");
 		try {
@@ -131,7 +133,7 @@ public class Test {
 
 	public void obfuscate(final String name, final String functionName) {
 		try {
-			Runtime.getRuntime().exec("javac src/test/resources/src/" + name + ".java").waitFor();
+			Runtime.getRuntime().exec("javac -g src/test/resources/src/" + name + ".java").waitFor();
 			final OpaquePredicateObfuscator opo = new OpaquePredicateObfuscator("src/test/resources/src/" + name + ".class",
 																				"src/test/resources/out/" + name + ".class",
 																				Arrays.asList(functionName));
