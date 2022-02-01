@@ -107,7 +107,7 @@ public class OpaquePredicateTransformer extends ClassNode {
 	}
 
 	private void generatePredicate(final LocalVariableNode predicateVar, final LabelNode labelFalse, final InsnList list) {
-		// TODO: For now, we generate the basic x*x >= 0 predicate.
+		// TODO: For now, we generate the basic x*x < 0 predicate.
 		list.add(new VarInsnNode(Opcodes.ILOAD, predicateVar.index));
 		list.add(new VarInsnNode(Opcodes.ILOAD, predicateVar.index));
 		list.add(new InsnNode(Opcodes.IMUL));
