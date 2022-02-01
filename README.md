@@ -48,9 +48,9 @@ Collberg, Thomborson and Low have written that the more a code has branching, th
 This implementation has been tested with openjdk-11.
 
 ## How it works ?
-The .class to obfuscated is first read by a `ClassReader`. The `ClassReader` gives a `ClassNode`, which is a tree version of the class. I iterate over the `MethodNode` of the `ClassNode`. For each `MethodNode`, I iterate over the instruction, leaving untouched some instructions :
+The .class to obfuscate is first read by a `ClassReader`. The `ClassReader` gives a `ClassNode`, which is an AST-representation of the class. I iterate over the `MethodNode` of the `ClassNode`. For each `MethodNode`, I iterate over the instructions, leaving untouched some instructions :
 
-- the one my tool is not yet able to handle.
+- the ones my tool is not yet able to handle.
 - the `*return` instruction, because it would require specific handling so that the method always returns something.
 
 After the transformation, the modified `ClassNode` is given to a `ClassWriter` and then the modified .class is written on disk.
